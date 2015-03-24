@@ -372,7 +372,15 @@ module ActiveRecord
 
       # Executes the SQL statement in the context of this connection.
       def execute(sql, name = nil)
-        log(sql, name) { @connection.query(sql) }
+        while true do
+          begin
+            result = log(sql, name) { @connection.query(sql) }
+            break
+          rescue
+            sleep 0.1
+          end
+        end
+        return result
       end
 
       # MysqlAdapter has to free a result after using it, so we use this method to write
